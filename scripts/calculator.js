@@ -4,17 +4,17 @@ import { BigNumber } from "./bignumber.mjs";
 
 export class Calculator {
     constructor(numbers) {
-        this.numbersCopy = numbers;
+        this.numbersHold = [...numbers];
         this.reset();
     }
 
     reset() {
-        this.numbers = this.numbersCopy.map((num) => BigNumber(num));
+        this.numbers = this.numbersHold.map((num) => BigNumber(num));
         this.leftRunTimes = 0;
         this.craftCount = [0, 0];
     }
 
-    setEnemies(enemiesData, enemiesConfig) {
+    setEnemies(enemiesData, enemiesConfig, isWorldLevel9 = true) {
         this.enemiesData = enemiesData;
         this.materialsPerRun = [0, 0, 0];
         enemiesConfig.forEach((config) => {
@@ -22,7 +22,11 @@ export class Calculator {
                 let materialsPerEnemy = enemiesData.find(
                     (enemy) => enemy.name === config.name
                 ).materialsPerEnemy;
-                const coeff = Calculator.enemyLevelCoeff(config.level);
+                let coeff = Calculator.enemyLevelCoeff(config.level);
+                if (isWorldLevel9) {
+                    coeff = config.level === 20 ? coeff * 1.5 : coeff * 1.25;
+                }
+                // coeff = isWorldLevel9 ? coeff * 1.5 : coeff;
                 materialsPerEnemy = materialsPerEnemy.map((num) =>
                     BigNumber(num)
                         .multipliedBy(coeff)
@@ -33,9 +37,42 @@ export class Calculator {
                 );
             }
         });
+        this.materialsPerRun = this.materialsPerRun.map((num) => {
+            if (+num >= 0) {
+                return +num.toFixed(4);
+            } else {
+                return 0;
+            }
+        });
     }
 
-    static enemyLevelCoeff = (level) => (level + 12) / 30;
+    setInitNumbers(numbers) {
+        this.initNumbers = [...numbers];
+    }
+
+    increasement() {
+        if (!this.initNumbers) {
+            return "-";
+        }
+        const diff = this.numbersHold.map(
+            (num, i) => num - this.initNumbers[i]
+        );
+        const diffWeight = Calculator.weight(...diff);
+        const oneRunWeight = Calculator.weight(...this.materialsPerRun);
+        if (oneRunWeight) {
+            return +BigNumber(diffWeight).dividedBy(oneRunWeight).toFixed(1);
+        } else {
+            return "-";
+        }
+    }
+
+    static enemyLevelCoeff(level) {
+        if (level >= 18) {
+            return 1;
+        } else {
+            return (level + 12) / 30;
+        }
+    }
 
     completed() {
         return this.numbers.every((num) => +num >= 9999);
@@ -97,8 +134,11 @@ export class Calculator {
 
     overflow(sucrose, dori) {
         this.enemiesData.sort(
-            (a, b) => a.materialsPerEnemy[0] - b.materialsPerEnemy[0]
+            (a, b) => b.materialsPerEnemy[0] - a.materialsPerEnemy[0]
         );
+        // this.enemiesData.sort(
+        //     (a, b) => a.materialsPerEnemy[0] - b.materialsPerEnemy[0]
+        // );
         this.materialsPerRun = this.enemiesData[0].materialsPerEnemy.map(
             (num) => BigNumber(num)
         );
@@ -106,22 +146,13 @@ export class Calculator {
         return this.numbers.map((num) => +num.minus(9999).toFixed(1));
     }
 
-    /**
-     * 计算材料毕业进度。
-     * @param {number} low 低阶材料数量
-     * @param {number} medium 中阶材料数量
-     * @param {number} high 高阶材料数量
-     * @param {number} fix 小数位数
-     * @returns
-     */
-    static progress(low, medium, high, fix = 2) {
-        const weight = low + medium * 3 + high * 9;
-        const total = 9999 * (1 + 3 + 9);
-        const p = BigNumber(weight).dividedBy(total).multipliedBy(100);
-        return +p.toFixed(fix);
+    static weight = (low, medium, high) => low + medium * 3 + high * 9;
+
+    static progress(low, medium, high, d = 2) {
+        const weight = this.weight(low, medium, high);
+        const total = this.weight(9999, 9999, 9999);
+        return +BigNumber(weight).dividedBy(total).multipliedBy(100).toFixed(d);
     }
 
-    static isValidNumber(n) {
-        return Number.isInteger(n) && n >= 0 && n <= 9999;
-    }
+    static isValidNumber = (x) => Number.isInteger(x) && x >= 0 && x <= 9999;
 }

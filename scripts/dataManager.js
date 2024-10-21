@@ -13,11 +13,24 @@ export class DataManager {
         this.data = cachedData ? JSON.parse(cachedData) : userDefault;
     }
 
+    get isWorldLevel9() {
+        return this.data.isWorldLevel9;
+    }
+
+    set isWorldLevel9(value) {
+        this.data.isWorldLevel9 = Boolean(value);
+        this.saveData();
+    }
+
     get currentID() {
         return this.data.currentID;
     }
 
     set currentID(id) {
+        if (this.data.currentID === id) {
+            return;
+        }
+        console.log("Switch current ID to", id);
         this.data.currentID = id;
         this.saveData();
     }
@@ -46,10 +59,6 @@ export class DataManager {
         }
     }
 
-    /**
-     * Add or update numbers of current material.
-     * @param {Number[]} numbers
-     */
     setNumbers(numbers) {
         const index = this.data.materialsNumbers.findIndex(
             (item) => item.id === this.currentID
@@ -59,12 +68,51 @@ export class DataManager {
             const record = {
                 id: this.currentID,
                 numbers: numbers,
+                lock: null,
             };
             this.data.materialsNumbers.push(record);
         } else {
             // record exists, update numbers
             this.data.materialsNumbers[index].numbers = numbers;
         }
+        this.saveData();
+    }
+
+    getLockNumbers() {
+        const index = this.data.materialsNumbers.findIndex(
+            (item) => item.id === this.currentID
+        );
+        if (index === -1) {
+            return null;
+        } else {
+            return this.data.materialsNumbers[index].lock;
+        }
+    }
+
+    lockNumbers() {
+        const index = this.data.materialsNumbers.findIndex(
+            (item) => item.id === this.currentID
+        );
+        if (index === -1) {
+            const record = {
+                id: this.currentID,
+                numbers: [0, 0, 0],
+                lock: [0, 0, 0],
+            };
+            this.data.materialsNumbers.push(record);
+        } else {
+            this.data.materialsNumbers[index].lock = [
+                ...this.data.materialsNumbers[index].numbers,
+            ];
+        }
+        this.saveData();
+    }
+
+    unlockNumbers() {
+        const index = this.data.materialsNumbers.findIndex(
+            (item) => item.id === this.currentID
+        );
+        this.data.materialsNumbers[index].lock = null;
         this.saveData();
     }
 
@@ -123,12 +171,20 @@ export class DataManager {
         this.saveData();
     }
 
-    /**
-     * Sort materials by id.
-     * @param {boolean} desc if true, sort in descending order; if false, sort in ascending order
-     */
     sortMaterialsByID(desc) {
-        this.materials.sort((a, b) => (desc ? b.id - a.id : a.id - b.id));
+        if (desc) {
+            this.materials.sort((a, b) => b.id - a.id);
+            this.materials = this.materials
+                .filter((item) => item.type === "common")
+                .concat(this.materials.filter((item) => item.type === "elite"));
+        } else {
+            this.materials.sort((a, b) => a.id - b.id);
+            this.materials = this.materials
+                .filter((item) => item.type === "elite")
+                .concat(
+                    this.materials.filter((item) => item.type === "common")
+                );
+        }
     }
 
     /**

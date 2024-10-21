@@ -1,6 +1,7 @@
 "use strict";
 
 export const userDefault = {
+    format: "DARKMOON",
     currentID: 1,
     materialsNumbers: [],
     enemiesConfig: [],
@@ -17,4 +18,5 @@ export const userDefault = {
         noneBonus: true,
     },
     colorTheme: "cyan",
+    isWorldLevel9: true,
 };

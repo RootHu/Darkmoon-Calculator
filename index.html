@@ -25,6 +25,7 @@
     <body>
         <nav>
             <button class="clear-data btn">清除</button>
+            <button class="export-data btn">导出</button>
             <button class="import-data btn">导入</button>
             <select name="color-theme" id="color-theme">
                 <option value="cyan" selected>Cyan</option>
@@ -41,6 +42,15 @@
                 <option value="yellow">Yellow</option>
                 <option value="orange">Orange</option>
             </select>
+            <input type="checkbox" id="world-level-9" /><label
+                for="world-level-9"
+                >世界9</label
+            >
+            <a
+                class="github-url"
+                href="https://github.com/lyx314/Darkmoon-Calculator"
+                >项目地址</a
+            >
         </nav>
         <main class="app">
             <div class="title">
@@ -52,17 +62,23 @@
                 />
             </div>
             <section class="section-panel">
-                <div class="progress-value-container">
-                    <ion-icon
-                        name="arrow-back-circle-outline"
-                        class="last-material btn"
-                    ></ion-icon>
-                    <span class="progress-value">0%</span>
-                    <ion-icon
-                        name="arrow-forward-circle-outline"
-                        class="next-material btn"
-                    ></ion-icon>
-                </div>
+                <ion-icon
+                    class="unlock-init-numbers btn"
+                    name="lock-open-outline"
+                ></ion-icon>
+                <ion-icon
+                    class="lock-init-numbers btn hidden"
+                    name="lock-closed-outline"
+                ></ion-icon>
+                <ion-icon
+                    class="last-material btn"
+                    name="chevron-back-outline"
+                ></ion-icon>
+                <ion-icon
+                    class="next-material btn"
+                    name="chevron-forward-outline"
+                ></ion-icon>
+                <div class="progress-value">0%</div>
                 <div class="progress-container">
                     <div class="progress-bar" style="--progress: 0%"></div>
                 </div>
@@ -77,7 +93,7 @@
                         </div>
                         <span class="material-name">史莱姆原浆</span>
                         <input
-                            type="text"
+                            type="number"
                             placeholder="0"
                             class="material-input"
                         />
@@ -86,6 +102,7 @@
                                 name="remove-circle-outline"
                                 class="minus-btn btn"
                             ></ion-icon>
+                            <span class="init-number"></span>
                             <ion-icon
                                 name="add-circle-outline"
                                 class="add-btn btn"
@@ -102,7 +119,7 @@
                         </div>
                         <span class="material-name">史莱姆清</span>
                         <input
-                            type="text"
+                            type="number"
                             placeholder="0"
                             class="material-input"
                         />
@@ -111,6 +128,7 @@
                                 name="remove-circle-outline"
                                 class="minus-btn btn"
                             ></ion-icon>
+                            <span class="init-number"></span>
                             <ion-icon
                                 name="add-circle-outline"
                                 class="add-btn btn"
@@ -127,7 +145,7 @@
                         </div>
                         <span class="material-name">史莱姆凝液</span>
                         <input
-                            type="text"
+                            type="number"
                             placeholder="0"
                             class="material-input"
                         />
@@ -136,6 +154,7 @@
                                 name="remove-circle-outline"
                                 class="minus-btn btn"
                             ></ion-icon>
+                            <span class="init-number"></span>
                             <ion-icon
                                 name="add-circle-outline"
                                 class="add-btn btn"
@@ -147,11 +166,15 @@
 
             <section class="enemy-section">
                 <div class="statistics">
-                    <div>剩余车数<span class="left-run-times"></span></div>
-                    <div>每车进度<span class="progress-per-run"></span></div>
+                    <div>剩余车数<span class="left-run-times">-</span></div>
+                    <div>
+                        新增车数<span class="increased-run-times">-</span>
+                    </div>
+                    <div>每车进度<span class="progress-per-run">0%</span></div>
                     <div class="materials-per-run">
-                        每车材料 <img src="img/1-2.png" /> 0
-                        <img src="img/1-1.png" /> 0 <img src="img/1-0.png" /> 0
+                        每车材料
+                        <img src="img/1-2.png" />0 <img src="img/1-1.png" />0
+                        <img src="img/1-0.png" />0
                     </div>
                 </div>
                 <div class="enemy-headers grid-4">
